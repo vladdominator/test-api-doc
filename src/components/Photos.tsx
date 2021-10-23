@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { defaultLimit, defaultPage } from "../common/defaultValues";
 import { Buttons } from "./Buttons";
+import { Modal } from "./Modal";
 
 export interface IPhotos {
   albumId: number;
@@ -16,6 +17,8 @@ const Photos: React.FC = () => {
   const [photos, setPhotos] = useState<IPhotos[]>([]);
   const [currentPage, setCurrentPage] = useState<number>(Number(defaultPage));
   const [process, setProcess] = useState(false);
+  const [modal, setModal] = useState<boolean>(false);
+  const [modalContent, setModalContent] = useState<IPhotos>();
 
   const getPhotos = async (page: number, limit: number) => {
     setProcess(true);
@@ -26,6 +29,11 @@ const Photos: React.FC = () => {
     const data = await response.json();
     setProcess(false);
     setPhotos(data);
+  };
+
+  const upModal = (item: IPhotos) => {
+    setModalContent(item);
+    setModal(true);
   };
 
   const validatePage = (page: number) => {
@@ -57,9 +65,14 @@ const Photos: React.FC = () => {
         <div className="loading">Loading...</div>
       ) : (
         <>
+          <Modal setVisible={setModal} isVisible={modal} item={modalContent} />
           <div className="container__photos">
             {photos.map((item: IPhotos) => (
-              <div className="photo" key={item.id}>
+              <div
+                className="photo"
+                key={item.id}
+                onClick={() => upModal(item)}
+              >
                 <p className="photo__title">{item.title}</p>
                 <img src={item.thumbnailUrl} alt={item.title} />
                 <button
