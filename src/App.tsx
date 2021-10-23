@@ -1,7 +1,16 @@
 import React from "react";
+import "./App.scss";
+import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
+import { Photos } from "./components/Photos";
 
 const App: React.FC = () => {
-  return <div>vlad</div>;
+  return (
+    <BrowserRouter>
+      <Switch>
+        <Route exact path="/" component={Photos} />
+      </Switch>
+    </BrowserRouter>
+  );
 };
 
 export { App };

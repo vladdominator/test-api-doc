@@ -1,0 +1,44 @@
+.container__photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  margin: 0 auto;
+  max-width: 1920px;
+  width: 100%;
+}
+
+.photo {
+  cursor: pointer;
+  max-width: 150px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.buttons__container {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  button {
+    width: 150px;
+    border: 0;
+    height: 40px;
+    background-color: aqua;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 25px;
+    &:last-child {
+      margin-left: 20px;
+    }
+    &:first-child {
+      margin-right: 20px;
+    }
+  }
+}
+.page__number {
+  color: blue;
+  font-size: 25px;
+}
