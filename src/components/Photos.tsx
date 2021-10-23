@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { defaultLimit, defaultPage } from "../common/defaultValues";
 import { Buttons } from "./Buttons";
 
@@ -14,14 +14,17 @@ let pageTotalCount: number;
 
 const Photos: React.FC = () => {
   const [photos, setPhotos] = useState<IPhotos[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(defaultPage);
+  const [currentPage, setCurrentPage] = useState<number>(Number(defaultPage));
+  const [process, setProcess] = useState(false);
 
   const getPhotos = async (page: number, limit: number) => {
+    setProcess(true);
     const response = await fetch(
       `http://jsonplaceholder.typicode.com/photos/?_page=${page}&_limit=${limit}`
     );
     pageTotalCount = Number(response.headers.get("X-Total-Count")) / limit;
     const data = await response.json();
+    setProcess(false);
     setPhotos(data);
   };
 
@@ -33,6 +36,15 @@ const Photos: React.FC = () => {
     } else {
       setCurrentPage(page);
     }
+    localStorage.setItem("page", String(page));
+  };
+
+  const deletePhoto = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
+    e.stopPropagation();
+    fetch(`https://jsonplaceholder.typicode.com/photos/${id}`, {
+      method: "DELETE",
+    });
+    getPhotos(currentPage, defaultLimit);
   };
 
   useMemo(() => {
@@ -41,15 +53,27 @@ const Photos: React.FC = () => {
 
   return (
     <main>
-      <div className="container__photos">
-        {photos.map((item: IPhotos) => (
-          <div className="photo" key={item.id}>
-            <p className="photo__title">{item.title}</p>
-            <img src={item.thumbnailUrl} alt={item.title} />
+      {process ? (
+        <div className="loading">Loading...</div>
+      ) : (
+        <>
+          <div className="container__photos">
+            {photos.map((item: IPhotos) => (
+              <div className="photo" key={item.id}>
+                <p className="photo__title">{item.title}</p>
+                <img src={item.thumbnailUrl} alt={item.title} />
+                <button
+                  className="photo__delete_button"
+                  onClick={(e) => deletePhoto(e, item.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <Buttons setCurrentPage={validatePage} page={currentPage} />
+          <Buttons setCurrentPage={validatePage} page={currentPage} />
+        </>
+      )}
     </main>
   );
 };
