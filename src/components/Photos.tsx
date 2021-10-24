@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { defaultLimit, defaultPage } from "../common/defaultValues";
 import { Buttons } from "./Buttons";
+import { Input } from "./Input";
 import { Modal } from "./Modal";
 
 export interface IPhotos {
@@ -19,6 +20,8 @@ const Photos: React.FC = () => {
   const [process, setProcess] = useState(false);
   const [modal, setModal] = useState<boolean>(false);
   const [modalContent, setModalContent] = useState<IPhotos>();
+  const [filter, setFilter] = useState<string>("");
+  const input = useRef<HTMLInputElement>(null);
 
   const getPhotos = async (page: number, limit: number) => {
     setProcess(true);
@@ -47,6 +50,26 @@ const Photos: React.FC = () => {
     localStorage.setItem("page", String(page));
   };
 
+  const setFilterItems = async (filter: string) => {
+    if (filter) {
+      setProcess(true);
+      const response = await fetch(
+        `http://jsonplaceholder.typicode.com/photos`
+      );
+      const data: IPhotos[] = (await response.json()).filter(
+        (item: IPhotos) => item.albumId === Number(filter)
+      );
+      setProcess(false);
+      setPhotos(data);
+    } else {
+      getPhotos(currentPage, defaultLimit);
+    }
+  };
+
+  useEffect(() => {
+    setFilterItems(filter);
+  }, [filter]);
+
   const deletePhoto = (e: React.MouseEvent<HTMLButtonElement>, id: number) => {
     e.stopPropagation();
     fetch(`https://jsonplaceholder.typicode.com/photos/${id}`, {
@@ -66,6 +89,7 @@ const Photos: React.FC = () => {
       ) : (
         <>
           <Modal setVisible={setModal} isVisible={modal} item={modalContent} />
+          <Input filter={filter} setFilter={setFilter} />
           <div className="container__photos">
             {photos.map((item: IPhotos) => (
               <div
@@ -84,7 +108,11 @@ const Photos: React.FC = () => {
               </div>
             ))}
           </div>
-          <Buttons setCurrentPage={validatePage} page={currentPage} />
+          {filter ? (
+            ""
+          ) : (
+            <Buttons setCurrentPage={validatePage} page={currentPage} />
+          )}
         </>
       )}
     </main>
